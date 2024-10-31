@@ -1,0 +1,8 @@
+# ignore the result of CMake proccess
+build/
+
+# ignore logs
+*.log
+
+# temporary ignoring
+/main.cpp
