@@ -1,6 +1,9 @@
 # ignore the result of CMake proccess
 build/
 
+# ignore the vscode extra
+.vscode/
+
 # ignore logs
 *.log
 
