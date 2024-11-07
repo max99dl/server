@@ -1,10 +1,13 @@
-#include "synchronous_server.h"
-//#include <iostream>
+#include "../lib/include/asynchronous_server.h"
+#include <iostream>
 
-int main() {
-    tcp::Server server;
-    server.init();
-    // we don't use the method server.close()
-    // because we don't mean to close it
-    size_t ad;
+int main()
+{
+    boost::asio::io_context context;
+
+    TCP::Server server(context);
+    // run until our server is alive
+    context.run();
+
+    return 0;
 }
