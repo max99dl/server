@@ -34,14 +34,25 @@ struct Logger
 ////////////////////////////////////////////////////////////////////// FUNCTIONS DECLARATION END
 
 
+
+////////////////////////////////// GLOBAL VARIABLES //////////////////
+static Logger g_log; //!< we made a global variable to get access in all functions and methods
+////////////////////////////////////////////////////////////////////
+
+
 //////////////////////////////////////////////////////////////////////// START SERVER'S PART
 Server::Server(io_context &io_contx)
     : acceptor_(io_contx, tcp::endpoint(tcp::v4(), PORT))
 {
-    static Logger log;
-    log.log_information(Status::DEBUG,"Start server...");
+    g_log.log_information(Status::DEBUG,"Start server...");
     // now we ready to waiting for clients
     do_accept();
+}
+
+Server::~Server()
+{
+    g_log.log_information(Status::DEBUG,"Close server...");
+    acceptor_.close();
 }
 
 void Server::do_accept()
@@ -55,13 +66,16 @@ void Server::do_accept()
                            tcp::socket socket)
     {
         if(ec) { //!< check for success accepting
-            std::cout << "error: " << ec.message() << std::endl;
+            g_log.log_information(Status::ERROR, ec.message());
         } else {   
-            // print some information about the connection
-            std::cout << "creating session on: "
-                      << socket.remote_endpoint().address().to_string()
-                      << ":" << socket.remote_endpoint().port()
-                      << '\n';
+            // log some information about the connection
+            const std::string message =
+                "creating session on: "
+                 + socket.remote_endpoint().address().to_string()
+                 + ":"
+                 + std::to_string(socket.remote_endpoint().port());
+
+            g_log.log_information(Status::INFO, message);
             /**
              * Create a session where we immediately call the run function. 
              * Note: the socket is passed to the lambda here
@@ -121,7 +135,7 @@ void Session::wait_for_request()
                 std::cout << data << std::endl;
                 wait_for_request();
             } else {
-                std::cout << "error: " << ec << std::endl;
+                g_log.log_information(Status::ERROR, ec.message());
             }
     });
 }

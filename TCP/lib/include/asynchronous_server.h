@@ -30,6 +30,7 @@ class Server
     boost::asio::ip::tcp::acceptor acceptor_;
 public:
     Server(boost::asio::io_context &context);
+    ~Server();
 
     Server(const Server& ser)            = delete; // to woun't be able
     Server& operator=(const Server& ser) = delete; // copy a Server object
