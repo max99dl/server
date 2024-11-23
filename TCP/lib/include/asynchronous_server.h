@@ -6,18 +6,33 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/streambuf.hpp>
-#include <boost/asio/read_until.hpp>
 /////////////////////////////////////
 
 ///////////////////////////////// DEFINES
 #define PORT 2001
 /////////////////////////////////
-
 namespace TCP{
 
 // list of classes
-class Server;
-class Session;
+class  Server;
+class  Session;
+struct Configuration;
+
+// list of functions
+
+Configuration parse_config_file(const std::string& filename);
+
+
+
+/**
+ * @brief a TCP server configuration
+ * 
+ * Now it is contains only one field max_client_count
+ */
+struct Configuration
+{
+    size_t max_client_count;
+};
 
 
 /**
@@ -28,8 +43,9 @@ class Session;
 class Server
 {
     boost::asio::ip::tcp::acceptor acceptor_;
+    const Configuration            config;
 public:
-    Server(boost::asio::io_context &context);
+    Server(boost::asio::io_context &context, Configuration conf);
     ~Server();
 
     Server(const Server& ser)            = delete; // to woun't be able
@@ -57,9 +73,6 @@ public:
 private:
     void wait_for_request();
 };
-
-
-
 
 
 

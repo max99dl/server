@@ -2,6 +2,9 @@
 //////////// INCLUDES ////////////////
 #include "../include/asynchronous_server.h"
 #include "../include/server_handler.h"
+#include <boost/asio/read_until.hpp>           // to read client's messages
+#include "boost/property_tree/json_parser.hpp" // to parse json
+#include "boost/property_tree/ptree.hpp"       // to parse json
 #include <thread>
 #include <iostream>
 #include <memory>   // for shared_ptr
@@ -25,8 +28,9 @@ static Logger g_log; //!< we made a global variable to get access in all functio
 
 
 //////////////////////////////////////////////////////////////////////// START SERVER'S PART
-Server::Server(io_context &io_contx)
-    : acceptor_(io_contx, tcp::endpoint(tcp::v4(), PORT))
+Server::Server(io_context &io_contx, Configuration conf)
+    : acceptor_(io_contx, tcp::endpoint(tcp::v4(), PORT)),
+      config(conf)
 {
     g_log.log_information(Status::DEBUG,"Start server...");
     // now we ready to waiting for clients
@@ -116,7 +120,7 @@ void Session::wait_for_request()
                  * we just print the data, you can here call other api's
                  * or whatever the server needs to do with the received data
                  */
-                std::cout << data << std::endl;
+                std::cout << data << length << std::endl;
                 wait_for_request();
             } else {
                 g_log.log_information(Status::ERROR, ec.message());
@@ -127,5 +131,16 @@ void Session::wait_for_request()
 
 
 //////////////////////////////////////////////////////////////////////////// FUNCTIONS DEFENITION START
+/**
+ * parse a .json file with TCP server parameters
+ */
+Configuration parse_config_file(const std::string& filename)
+{
+    boost::property_tree::ptree rootHive;
+    boost::property_tree::read_json(filename, rootHive);
 
+    auto count = rootHive.get<size_t>("Server.max_client_count", 0);
+
+    return {count};
+}
 //////////////////////////////////////////////////////////////////////////// FUNCTIONS DEFENITION END
