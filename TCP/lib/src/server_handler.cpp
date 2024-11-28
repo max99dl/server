@@ -1,5 +1,5 @@
-#include "../include/server_handler.h"
-#include "../spdlog/include/spdlog/spdlog.h"
+#include "server_handler.h"
+#include "spdlog/spdlog.h"
 
 
 //////////////////////////////////////////// LOGGER START

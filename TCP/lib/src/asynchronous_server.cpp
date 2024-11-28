@@ -1,7 +1,7 @@
 
 //////////// INCLUDES ////////////////
-#include "../include/asynchronous_server.h"
-#include "../include/server_handler.h"
+#include "asynchronous_server.h"
+#include "server_handler.h"
 #include <boost/asio/read_until.hpp>           // to read client's messages
 #include "boost/property_tree/json_parser.hpp" // to parse json
 #include "boost/property_tree/ptree.hpp"       // to parse json

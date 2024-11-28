@@ -21,6 +21,8 @@ target_include_directories(
     tcp_server
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/spdlog/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    #${CMAKE_CURRENT_SOURCE_DIR}/boost
 )
 install(
     TARGETS tcp_server EXPORT tcp_serverTargets
