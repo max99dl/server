@@ -23,7 +23,6 @@ using namespace boost::asio::ip;
 
 
 ////////////////////////////////// GLOBAL VARIABLES //////////////////
-static Logger g_log; //!< we made a global variable to get access in all functions and methods
 ////////////////////////////////////////////////////////////////////
 
 
@@ -32,14 +31,14 @@ Server::Server(io_context &io_contx, Configuration conf)
     : acceptor_(io_contx, tcp::endpoint(tcp::v4(), PORT)),
       config(conf)
 {
-    g_log.log_information(Status::DEBUG,"Start server...");
+    log_information(Status::DEBUG, "Start server...");
     // now we ready to waiting for clients
     do_accept();
 }
 
 Server::~Server()
 {
-    g_log.log_information(Status::DEBUG,"Close server...");
+    log_information(Status::DEBUG, "Close server...");
     acceptor_.close();
 }
 
@@ -54,7 +53,7 @@ void Server::do_accept()
                            tcp::socket socket)
     {
         if(ec) { //!< check for success accepting
-            g_log.log_information(Status::ERROR, ec.message());
+            log_information(Status::ERROR, ec.message());
         } else {   
             // log some information about the connection
             const std::string message =
@@ -63,7 +62,7 @@ void Server::do_accept()
                  + ":"
                  + std::to_string(socket.remote_endpoint().port());
 
-            g_log.log_information(Status::INFO, message);
+            log_information(Status::INFO, message);
             /**
              * Create a session where we immediately call the run function. 
              * Note: the socket is passed to the lambda here
@@ -123,7 +122,7 @@ void Session::wait_for_request()
                 std::cout << data << length << std::endl;
                 wait_for_request();
             } else {
-                g_log.log_information(Status::ERROR, ec.message());
+                log_information(Status::ERROR, ec.message());
             }
     });
 }
@@ -134,7 +133,7 @@ void Session::wait_for_request()
 /**
  * parse a .json file with TCP server parameters
  */
-Configuration parse_config_file(const std::string& filename)
+Configuration TCP::parse_config_file(const std::string& filename)
 {
     boost::property_tree::ptree rootHive;
     boost::property_tree::read_json(filename, rootHive);

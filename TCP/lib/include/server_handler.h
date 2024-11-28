@@ -6,23 +6,14 @@
 //////////////////////////////////////////////// STRUCT DECLARATIONS START
 
 enum class Status { //!< status of a log message
-    DEBUG, INFO, WARN, ERROR, CRITICAL
+    DEBUG, INFO, WARNING, ERROR, FATAL
 };
-
-/////////////////////////////////////////////////////////////////////////////////////// LOGGER START
-/**
- * Log server's information for debug
- */
-struct Logger
-{
-    Logger();
-    void log_information(const Status       status,
-                         const std::string& message);
-};
-//////////////////////////////////////////////////////////////////////////////////////// LOGGER END
 
 
 //////////////////////////////////////////////// FUNCTIONS DECLARATIONS START
+
+void log_information(const Status       status,
+                     const std::string& message);
 
 //////////////////////////////////////////////// FUNCTIONS DECLARATIONS END
 

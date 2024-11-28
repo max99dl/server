@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 project(TCP_server_library)
 
+find_package(Boost REQUIRED COMPONENTS log)
+
 add_library(
     tcp_server
     STATIC
@@ -15,15 +17,16 @@ set_target_properties(
 )
 target_compile_options(
     tcp_server PRIVATE
-    -Wall -Wextra -Werror
+    -Wall -Wextra #-Werror
 )
 target_include_directories(
     tcp_server
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/spdlog/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     #${CMAKE_CURRENT_SOURCE_DIR}/boost
 )
+target_link_libraries(tcp_server PRIVATE Boost::log)
+
 install(
     TARGETS tcp_server EXPORT tcp_serverTargets
     LIBRARY  DESTINATION lib
