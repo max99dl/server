@@ -1,5 +1,5 @@
 
-//////////// INCLUDES ////////////////
+//////////// INCLUDES ///////////////
 #include "asynchronous_server.h"
 #include "server_handler.h"
 #include <boost/asio/read_until.hpp>           // to read client's messages
@@ -29,7 +29,7 @@ using namespace boost::asio::ip;
 //////////////////////////////////////////////////////////////////////// START SERVER'S PART
 Server::Server(io_context &io_contx, Configuration conf)
     : acceptor_(io_contx, tcp::endpoint(tcp::v4(), PORT)),
-      config(conf)
+      config_(conf)
 {
     log_information(Status::DEBUG, "Start server...");
     // now we ready to waiting for clients
@@ -44,7 +44,7 @@ Server::~Server()
 
 void Server::do_accept()
 {
-    /**
+    /*
      * This is an async accept which means the lambda function is executed, 
      * when a client connects.
      * We can pass to the async_accept a callable object, instead of socket.
@@ -129,6 +129,8 @@ void Session::wait_for_request()
 /////////////////////////////////////////////////////////////////////////////// END SESSIONS'S PART
 
 
+
+
 //////////////////////////////////////////////////////////////////////////// FUNCTIONS DEFENITION START
 /**
  * parse a .json file with TCP server parameters
@@ -138,8 +140,15 @@ Configuration TCP::parse_config_file(const std::string& filename)
     boost::property_tree::ptree rootHive;
     boost::property_tree::read_json(filename, rootHive);
 
-    auto count = rootHive.get<size_t>("Server.max_client_count", 0);
+    auto client_count = rootHive.get<size_t>("Server.max_client_count", 0);
 
-    return {count};
+    // check for valid server configuration
+    if(client_count < 1) // at least must be 1 client
+    {
+        log_information(Status::FATAL, "Some problems in json configuration");
+        exit(1);
+    }
+
+    return {client_count};
 }
 //////////////////////////////////////////////////////////////////////////// FUNCTIONS DEFENITION END

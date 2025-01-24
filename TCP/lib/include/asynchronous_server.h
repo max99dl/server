@@ -19,7 +19,6 @@ class  Session;
 struct Configuration;
 
 // list of functions
-
 Configuration parse_config_file(const std::string& filename);
 
 
@@ -43,7 +42,7 @@ struct Configuration
 class Server
 {
     boost::asio::ip::tcp::acceptor acceptor_;
-    const Configuration            config;
+    const Configuration            config_;
 public:
     Server(boost::asio::io_context &context, Configuration conf);
     ~Server();
