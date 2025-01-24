@@ -14,7 +14,7 @@ set_target_properties(
 )
 target_compile_options(
     main PRIVATE
-    -Wall -Wextra
+    -Wall -Wextra -Wpedantic
 )
 target_include_directories(
     main

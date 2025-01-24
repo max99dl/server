@@ -27,22 +27,38 @@ using namespace boost::asio::ip;
 
 
 //////////////////////////////////////////////////////////////////////// START SERVER'S PART
-Server::Server(io_context &io_contx, Configuration conf)
-    : acceptor_(io_contx, tcp::endpoint(tcp::v4(), PORT)),
-      config_(conf)
+/**
+ * @brief Privare properties of the class Server.
+ * 
+ */
+class Server::Pimpl
+{
+public:
+    boost::asio::ip::tcp::acceptor acceptor_;
+    const Configuration              config_;
+
+    Pimpl(io_context &io_contx, const Configuration &conf)
+        : acceptor_(io_contx, tcp::endpoint(tcp::v4(), PORT)),
+          config_(conf)
+    {}
+    void do_accept(); // waits for clients
+};
+
+Server::Server(io_context &io_contx, const Configuration &conf)
+    : properties_( new Server::Pimpl(io_contx, conf) ) // @todo may be need to replace with `make_shared` 
 {
     log_information(Status::DEBUG, "Start server...");
     // now we ready to waiting for clients
-    do_accept();
+    properties_->do_accept();
 }
 
 Server::~Server()
 {
     log_information(Status::DEBUG, "Close server...");
-    acceptor_.close();
+    properties_->acceptor_.close();
 }
 
-void Server::do_accept()
+void Server::Pimpl::do_accept()
 {
     /*
      * This is an async accept which means the lambda function is executed, 
@@ -52,25 +68,25 @@ void Server::do_accept()
     acceptor_.async_accept([this](boost::system::error_code ec,
                            tcp::socket socket)
     {
-        if(ec) { //!< check for success accepting
+        if(ec) { // check for success accepting
             log_information(Status::ERROR, ec.message());
         } else {   
             // log some information about the connection
             const std::string message =
-                "creating session on: "
+                 "creating session on: "
                  + socket.remote_endpoint().address().to_string()
                  + ":"
                  + std::to_string(socket.remote_endpoint().port());
 
             log_information(Status::INFO, message);
-            /**
+            /*
              * Create a session where we immediately call the run function. 
              * Note: the socket is passed to the lambda here
              */
             std::make_shared<Session>(std::move(socket))->run();
         }
 
-        /**
+        /*
          * since we want multiple clients to connect,
          * wait for the next one by calling do_accept()
          */
@@ -92,21 +108,21 @@ Session::Session(tcp::socket sock)
  */
 void Session::run()
 {
-    //!< `run` was already called in our server, where we just wait for requests
+    // `run` was already called in our server, where we just wait for requests
     wait_for_request();
 }
 
 void Session::wait_for_request()
 {
-    //!< shared_from_this() return a shared_ptr to `this` pointer
+    ///< shared_from_this() return a shared_ptr to `this` pointer
     auto self(shared_from_this());
-    /**
+    /*
      * And now call the lambda once data arrives. 
      * We read a string until the null termination character
      */
     async_read_until(socket_, buffer_, "\0",
         [this, self](boost::system::error_code ec, size_t length) {
-            /**
+            /*
              * If there was no error, everything went well and for this demo 
              * we print the data to stdout and wait for the next request
              */
@@ -115,7 +131,7 @@ void Session::wait_for_request()
                     std::istreambuf_iterator<char>(&buffer_),
                     std::istreambuf_iterator<char>()
                 };
-                /**
+                /*
                  * we just print the data, you can here call other api's
                  * or whatever the server needs to do with the received data
                  */
@@ -133,7 +149,11 @@ void Session::wait_for_request()
 
 //////////////////////////////////////////////////////////////////////////// FUNCTIONS DEFENITION START
 /**
- * parse a .json file with TCP server parameters
+ * parse a .json file with TCP server parameters, and check for valid values. 
+ * In case of invalid configuration there are exit() is called. 
+ * 
+ * @param  filename - path to the config file
+ * @return TCP client configuration
  */
 Configuration TCP::parse_config_file(const std::string& filename)
 {
@@ -148,7 +168,6 @@ Configuration TCP::parse_config_file(const std::string& filename)
         log_information(Status::FATAL, "Some problems in json configuration");
         exit(1);
     }
-
     return {client_count};
 }
 //////////////////////////////////////////////////////////////////////////// FUNCTIONS DEFENITION END

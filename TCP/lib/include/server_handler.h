@@ -1,5 +1,14 @@
 #ifndef SERVER_HANDLER_H
 #define SERVER_HANDLER_H
+/**
+ * @file
+ * 
+ * This file conatains some usful classes and functions 
+ * to maintain the server during work.
+ * 
+ * This functions are not available in the public API
+ */
+
 
 #include <string>
 

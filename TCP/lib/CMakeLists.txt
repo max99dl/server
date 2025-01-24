@@ -17,7 +17,7 @@ set_target_properties(
 )
 target_compile_options(
     tcp_server PRIVATE
-    -Wall -Wextra #-Werror
+    -Wall -Wextra -Wpedantic -Werror
 )
 target_include_directories(
     tcp_server
