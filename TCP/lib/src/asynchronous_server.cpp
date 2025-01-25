@@ -20,7 +20,7 @@ using namespace boost::asio::ip;
 
 //////////////////////////////////////////////////////////////////////// START SERVER'S PART
 /**
- * @brief Privare properties of the class Server.
+ * @brief Private properties of the class Server.
  * 
  */
 class Server::Pimpl

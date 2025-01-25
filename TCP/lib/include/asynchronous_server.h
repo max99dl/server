@@ -40,17 +40,27 @@ struct Configuration
  * to the private members and methods realization.
  * 
  * It also cannot be copied.
+ * 
+ * We add getPimpl() and getConstPimpl() to be able use properties_ in const methods. 
+ * That way, the compiler will enforce that you use the const version in a const method. 
+ * If the const function also returns a const properties_ pointer, then you also get 
+ * compiler const checking for you properties_ methods.
+ * 
+ * @todo add const method to return count of actual tcp users
  */
 class Server
 {
     class                         Pimpl; // forward declaration
-    std::shared_ptr<Pimpl>  properties_; ///< points to members and methods
+    std::shared_ptr<Pimpl>  properties_; ///< points to private members and methods
 public:
     Server(boost::asio::io_context &context, const Configuration &conf);
     ~Server();
 
     Server(const Server& ser)            = delete; // to woun't be able
     Server& operator=(const Server& ser) = delete; // copy a Server object
+private:
+    std::shared_ptr<const Pimpl> getConstPimpl() const;
+    std::shared_ptr<Pimpl>       getPimpl();
 };
  
 
