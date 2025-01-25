@@ -4,8 +4,6 @@
 //////////// INCLUDES ////////////////
 #include <memory> // need for shared_ptr
 #include <boost/asio/io_context.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/streambuf.hpp>
 /////////////////////////////////////
 
 ///////////// DEFINES ///////////////////
@@ -14,13 +12,12 @@
 
 namespace TCP{
 
-// list of classes
+///////////// LIST OF CLASSES ///////////////////
 class  Server;
-class  Session;
 struct Configuration;
+/////////////////////////////////////////////////
 
 ///////////////////// FUNCTIONS DECLARATION ///////////////////
-
 Configuration parse_config_file(const std::string& filename);
 ///////////////////////////////////////////////////////////////
 
@@ -56,27 +53,6 @@ public:
     Server& operator=(const Server& ser) = delete; // copy a Server object
 };
  
-
-
-/**
- * @brief A TCP client session 
- * 
- * This was created as shared ptr and we need later 'this' 
- * therefore we need to inherit from enable_shared_from_this
- */
-class Session : public std::enable_shared_from_this<Session>
-{
-    boost::asio::ip::tcp::socket socket_; ///< our tcp socket
-    boost::asio::streambuf       buffer_; ///< buffer for client's messages
-public:
-    Session(boost::asio::ip::tcp::socket sock);
-    void run();
-
-private:
-    void wait_for_request();
-};
-
-
 
 } // TCP
 #endif // SYNCHRONOYS_SERVER_H

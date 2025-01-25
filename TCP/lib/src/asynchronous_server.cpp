@@ -5,9 +5,7 @@
 #include <boost/asio/read_until.hpp>           // to read client's messages
 #include "boost/property_tree/json_parser.hpp" // to parse json
 #include "boost/property_tree/ptree.hpp"       // to parse json
-#include <thread>
-#include <iostream>
-#include <memory>   // for shared_ptr
+#include <memory>                              // for shared_ptr
 ////////////////////////////////////////
 
 //////////// DEFINES /////////////
@@ -15,12 +13,6 @@
 using namespace TCP;
 using namespace boost::asio;
 using namespace boost::asio::ip;
-
-////////////////////////////////////////////////////////////////////// FUNCTIONS DECLARATION START
-
-////////////////////////////////////////////////////////////////////// FUNCTIONS DECLARATION END
-
-
 
 ////////////////////////////////// GLOBAL VARIABLES //////////////////
 ////////////////////////////////////////////////////////////////////
@@ -94,56 +86,6 @@ void Server::Pimpl::do_accept()
     });
 }
 //////////////////////////////////////////////////////////////////////////// END SERVER'S PART
-
-
-//////////////////////////////////////////////////////////////////////////// START SESSIONS'S PART
-Session::Session(tcp::socket sock)
-    : socket_(std::move(sock))
-{}
-
-/**
- * @brief Call the private method wait_for_requests()
- * 
- * We add this public method to make our API more flexible
- */
-void Session::run()
-{
-    // `run` was already called in our server, where we just wait for requests
-    wait_for_request();
-}
-
-void Session::wait_for_request()
-{
-    ///< shared_from_this() return a shared_ptr to `this` pointer
-    auto self(shared_from_this());
-    /*
-     * And now call the lambda once data arrives. 
-     * We read a string until the null termination character
-     */
-    async_read_until(socket_, buffer_, "\0",
-        [this, self](boost::system::error_code ec, size_t length) {
-            /*
-             * If there was no error, everything went well and for this demo 
-             * we print the data to stdout and wait for the next request
-             */
-            if(!ec) {
-                std::string data{
-                    std::istreambuf_iterator<char>(&buffer_),
-                    std::istreambuf_iterator<char>()
-                };
-                /*
-                 * we just print the data, you can here call other api's
-                 * or whatever the server needs to do with the received data
-                 */
-                std::cout << data << length << std::endl;
-                wait_for_request();
-            } else {
-                log_information(Status::ERROR, ec.message());
-            }
-    });
-}
-/////////////////////////////////////////////////////////////////////////////// END SESSIONS'S PART
-
 
 
 
