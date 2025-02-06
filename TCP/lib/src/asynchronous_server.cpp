@@ -27,7 +27,9 @@ class Server::Pimpl
 {
 public:
     boost::asio::ip::tcp::acceptor acceptor_;
-    const Configuration              config_;
+    const Configuration              config_; /// TCP configuration
+    static size_t        actual_client_count;
+    // TODO: add vecetor of Sessions to be able manage the connections ???
 
     Pimpl(io_context &io_contx, const Configuration &conf)
         : acceptor_(io_contx, tcp::endpoint(tcp::v4(), PORT)),
@@ -50,8 +52,18 @@ Server::~Server()
     properties_->acceptor_.close();
 }
 
+
 void Server::Pimpl::do_accept()
 {
+    // check for valid clients count
+    if(Pimpl::actual_client_count > config_.max_client_count)
+    {
+        const std::string message = 
+          "The number of connections has reached its maximum";
+        log_information(Status::WARNING, message);
+        return;
+    }
+    
     /*
      * This is an async accept which means the lambda function is executed, 
      * when a client connects.
@@ -62,7 +74,9 @@ void Server::Pimpl::do_accept()
     {
         if(ec) { // check for success accepting
             log_information(Status::ERROR, ec.message());
-        } else {   
+        } 
+        else {   
+            Pimpl::actual_client_count++;
             // log some information about the connection
             const std::string message =
                  "creating session on: "

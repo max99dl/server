@@ -25,7 +25,7 @@ void Session::run()
 
 void Session::wait_for_request()
 {
-    ///< shared_from_this() return a shared_ptr to `this` pointer
+    // shared_from_this() returns a shared_ptr to `this` pointer
     auto self(shared_from_this());
     /*
      * And now call the lambda once data arrives. 
